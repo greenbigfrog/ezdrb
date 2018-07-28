@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require "ezdrb/cli"
+Ezdrb::CLI.start
