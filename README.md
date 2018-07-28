@@ -1,38 +1,80 @@
 # Ezdrb
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ezdrb`. To experiment with that code, run `bin/console` for an interactive prompt.
+Write Discord bots faster (Discordrb-only).
 
-TODO: Delete this and the text above, and describe your gem
+## Install
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'ezdrb'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install ezdrb
+`$ gem install ezdrb`
 
 ## Usage
+`$ ezdrb <command>`
 
-TODO: Write usage instructions here
+## Commands available
 
-## Development
+* `help [command]`: Lists all commands available.
+* `init`: Creates a new bot in the current directory (recommended: run this in an empty directory)
+* `command <command>`: Creates a new bot command. You can find all bot commands in the *commands/* directory.
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+## Example
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+**1\. Create the bot:**
 
-## Contributing
+```
+$ mkdir my-awesome-bot && cd "$_"
+$ ezdrb init
+Creating new EZDRB project...
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/ezdrb.
+Set prefix: ++
+Set token: 123456789
+```
+
+By running `ls` you should get this structure:
+
+```
+$ ls
+Attributes.rb  bot.rb  commands/  Commands.rb  config/
+```
+
+**2\. Add commands to the bot:**
+
+```
+$ ezdrb command ping
+```
+
+All available commands are in `config/commands.yml`:
+
+```
+$ cat config/commands.yml
+commands:
+- ping
+```
+
+**3\. Edit commands:**
+
+`$ vim commands/Ping.rb`. You should get something like this:
+
+```ruby
+class Ping
+
+  def activate(bot)
+    bot.command :ping do |event|
+      
+    end
+  end
+
+end
+
+Ping.new
+```
+
+Write your command script inside the `bot.command` block.
+
+**4\. Run the bot:**
+
+Run `bot.rb`:
+
+`$ ruby bot.rb`
+
 
 ## License
 
