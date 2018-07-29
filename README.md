@@ -12,6 +12,7 @@ Write Discord bots faster (Discordrb-only).
 ## Commands available
 
 * `help [command]`: Lists all commands available.
+* `event <event>`: Creates new event handler (see all available events: https://www.rubydoc.info/github/meew0/discordrb/Discordrb/EventContainer)
 * `init`: Creates a new bot in the current directory (recommended: run this in an empty directory)
 * `command <command>`: Creates a new bot command. You can find all bot commands in the *commands/* directory.
 
@@ -58,7 +59,7 @@ class Ping
 
   def activate(bot)
     bot.command :ping do |event|
-      
+      puts "pong!"
     end
   end
 
@@ -69,7 +70,43 @@ Ping.new
 
 Write your command script inside the `bot.command` block.
 
-**4\. Run the bot:**
+**4\. Add event handlers to the bot:**
+
+```
+$ ezdrb event channel_create
+```
+
+All bot handlers are stored in `config/events.yml`:
+
+```
+$ cat config/events.yml
+events:
+- Channel_create
+```
+
+See all available events [here](https://www.rubydoc.info/github/meew0/discordrb/Discordrb/EventContainer).
+
+**5\. Edit handlers**
+
+`$ vim commands/Channel_create.rb`. You should get something like this:
+
+```ruby
+class Channel_create
+
+  def activate(bot)
+    bot.channel_create do |event|
+      puts "channel has been added"
+    end
+  end
+
+end
+
+Channel_create.new
+```
+
+Write what your bot should do when the event is triggered inside the `bot.channel_create` block.
+
+**6\. Run the bot:**
 
 Run `bot.rb`:
 
@@ -78,7 +115,7 @@ Run `bot.rb`:
 ## To do
 
 - delete a bot command
-- add events
+- ~~add events~~
 - remove events
 - run the bot from ezdrb
 
