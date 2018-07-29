@@ -33,6 +33,7 @@ module Ezdrb
         begin
           Dir.mkdir('config')
           Dir.mkdir('commands')
+          Dir.mkdir('events')
 
           File.open('config/bot.yml', 'w') do |file|
             file.write(
@@ -47,6 +48,14 @@ module Ezdrb
             file.write(
               <<~HEREDOC
                 commands:
+              HEREDOC
+            )
+          end
+
+          File.open('config/events.yml', 'w') do |file|
+            file.write(
+              <<~HEREDOC
+                events:
               HEREDOC
             )
           end
@@ -116,6 +125,35 @@ module Ezdrb
             )
           end
 
+          File.open('Events.rb', 'w') do |file|
+            file.write(
+              <<~HEREDOC
+                require 'yaml'
+
+                class Events
+                  @events = {}
+
+                  def self.parse(bot)
+                    begin
+                      events = YAML.load_file('config/events.yml')
+                      events = events.values.flatten.map(&:to_sym)
+                    rescue => e
+                      puts 'ERROR: Couldn\'t read events.yml'
+                      exit!
+                    end
+
+                    events.each { |event| @events[event] = instance_eval(File.read("events/\#{event}.rb")) }
+                    @events.each { |event| event[1].activate(bot) }
+                  end
+
+                  class << self
+                    attr_reader :events
+                  end
+                end
+              HEREDOC
+            )
+          end
+
           File.open('bot.rb', 'w') do |file|
             file.write(
               <<~HEREDOC
@@ -123,12 +161,14 @@ module Ezdrb
 
                 require_relative 'Attributes.rb'
                 require_relative 'Commands.rb'
+                require_relative 'Events.rb'
 
                 $LOAD_PATH << Dir.pwd
 
                 Attributes.parse
                 bot = Discordrb::Commands::CommandBot.new(token: Attributes.token, prefix: Attributes.prefix)
                 Commands.parse(bot)
+                Events.parse(bot)
 
                 bot.run
               HEREDOC
@@ -188,6 +228,63 @@ module Ezdrb
         say('Something went wrong while creating the command.')
         say(" => #{e.message}")
       end
+    end
+
+    desc 'event <event>', 'Creates a new event handler'
+    def event(event)
+      event = command_name.strip.downcase
+      EVENTS = Discordrb::EventContainer.instance_methods - [:<<, :add_handler, :await, :clear!, :include!, :include_events, :remove_handler]
+      
+      if EVENTS.include?(event.to_sym) then
+        begin
+          events = YAML.load_file('config/events.yml')
+          events = events.values.flatten
+        rescue => e
+          say('ERROR: Couldn\'t read events.yml')
+          exit!
+        end
+
+        if events.include?(event) then
+          say("ERROR: #{event} already exists")
+          exit!
+        end
+
+        begin
+          File.open('config/events.yml', 'a') do |file|
+            file.write(
+              <<~HEREDOC
+                - #{event}
+              HEREDOC
+            )
+          end
+
+          File.open("events/#{event}.rb", 'w') do |file|
+            file.write(
+              <<~HEREDOC
+                class #{event}
+
+                  def activate(bot)
+                    bot.#{event} do |event|
+                      
+                    end
+                  end
+
+                end
+
+                #{event}.new
+              HEREDOC
+            )
+          end
+        rescue => e
+          say('Something went wrong while creating the command.')
+          say(" => #{e.message}")
+        end
+
+      else
+        say('This event does not exist.')
+      end
+    end
+
     end
 
   end
