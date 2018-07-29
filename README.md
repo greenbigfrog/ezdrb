@@ -75,12 +75,12 @@ Run `bot.rb`:
 
 `$ ruby bot.rb`
 
-## Tasks
+## To do
 
-- [] delete a bot command
-- [] add events
-- [] remove events
-- [] run the bot from ezdrb
+- delete a bot command
+- add events
+- remove events
+- run the bot from ezdrb
 
 
 ## License
