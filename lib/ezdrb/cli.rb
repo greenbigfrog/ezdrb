@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+# ENV['DISCORDRB_NONACL'] = 'nope'
+
+# module Discordrb
+# end
+
 require 'thor'
 require 'yaml'
 require 'ezdrb'
@@ -71,7 +76,7 @@ module Ezdrb
                     begin
                       config = YAML.load_file('config/bot.yml')
                     rescue => e
-                      puts 'ERROR: Couldn\'t read bot.yml'
+                      puts "ERROR: Couldn't read bot.yml"
                       exit!
                     end
 
@@ -109,11 +114,11 @@ module Ezdrb
                       commands = YAML.load_file('config/commands.yml')
                       commands = commands.values.flatten.map(&:to_sym)
                     rescue => e
-                      puts 'ERROR: Couldn\'t read commands.yml'
+                      puts "ERROR: Couldn't read commands.yml"
                       exit!
                     end
 
-                    commands.each { |command| @commands[command] = instance_eval(File.read("commands/\#{command}.rb")) }
+                    commands.each { |command| @commands[command] = instance_eval(File.read("commands/\#{command.downcase.capitalize}.rb")) }
                     @commands.each { |command| command[1].activate(bot) }
                   end
 
@@ -138,11 +143,11 @@ module Ezdrb
                       events = YAML.load_file('config/events.yml')
                       events = events.values.flatten.map(&:to_sym)
                     rescue => e
-                      puts 'ERROR: Couldn\'t read events.yml'
+                      puts "ERROR: Couldn't read events.yml"
                       exit!
                     end
 
-                    events.each { |event| @events[event] = instance_eval(File.read("events/\#{event}.rb")) }
+                    events.each { |event| @events[event] = instance_eval(File.read("events/\#{event.downcase.capitalize}.rb")) }
                     @events.each { |event| event[1].activate(bot) }
                   end
 
@@ -189,7 +194,7 @@ module Ezdrb
         commands = YAML.load_file('config/commands.yml')
         commands = commands.values.flatten
       rescue => e
-        say('ERROR: Couldn\'t read commands.yml')
+        say("ERROR: Couldn't read commands.yml")
         exit!
       end
 
@@ -232,15 +237,15 @@ module Ezdrb
 
     desc 'event <event>', 'Creates a new event handler'
     def event(event)
-      event = command_name.strip.downcase
-      EVENTS = Discordrb::EventContainer.instance_methods - [:<<, :add_handler, :await, :clear!, :include!, :include_events, :remove_handler]
+      event = event.strip.downcase
+      official_events = [:ready, :disconnected, :heartbeat, :typing, :message_edit, :message_delete, :reaction_add, :reaction_remove, :reaction_remove_all, :presence, :playing, :channel_create, :channel_update, :channel_delete, :channel_recipient_add, :channel_recipient_remove, :voice_state_update, :member_join, :member_update, :member_leave, :user_ban, :user_unban, :server_create, :mention, :server_update, :server_delete, :server_emoji, :server_emoji_create, :server_emoji_delete, :private_message, :direct_message, :server_emoji_update, :raw, :unknown, :pm, :dm, :message]
       
-      if EVENTS.include?(event.to_sym) then
+      if official_events.include?(event.to_sym) then
         begin
           events = YAML.load_file('config/events.yml')
           events = events.values.flatten
         rescue => e
-          say('ERROR: Couldn\'t read events.yml')
+          say("ERROR: Couldn't read events.yml")
           exit!
         end
 
@@ -253,15 +258,15 @@ module Ezdrb
           File.open('config/events.yml', 'a') do |file|
             file.write(
               <<~HEREDOC
-                - #{event}
+                - #{event.downcase.capitalize}
               HEREDOC
             )
           end
 
-          File.open("events/#{event}.rb", 'w') do |file|
+          File.open("events/#{event.downcase.capitalize}.rb", 'w') do |file|
             file.write(
               <<~HEREDOC
-                class #{event}
+                class #{event.downcase.capitalize}
 
                   def activate(bot)
                     bot.#{event} do |event|
@@ -271,7 +276,7 @@ module Ezdrb
 
                 end
 
-                #{event}.new
+                #{event.downcase.capitalize}.new
               HEREDOC
             )
           end
@@ -283,8 +288,6 @@ module Ezdrb
       else
         say('This event does not exist.')
       end
-    end
-
     end
 
   end
