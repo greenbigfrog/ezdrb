@@ -118,6 +118,7 @@ Run `bot.rb`:
 - ~~add events~~
 - remove events
 - run the bot from ezdrb
+- use erb for code generation
 
 
 ## License
