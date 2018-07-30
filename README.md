@@ -1,6 +1,6 @@
 # Ezdrb
 
-Write Discord bots faster (Discordrb-only).
+Write Discord bots using discordrb faster.
 
 ## Install
 
