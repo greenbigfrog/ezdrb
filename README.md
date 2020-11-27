@@ -1,3 +1,5 @@
+# Apparently the orginal creator deleted their account and repos. This only exists for archival purposes, and shouldn't really be used.
+
 # Ezdrb
 
 Write Discord bots faster (Discordrb-only).
